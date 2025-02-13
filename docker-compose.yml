@@ -1,0 +1,62 @@
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
+      POSTGRES_HOST: localhost
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -h localhost -p 5433 -U user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+
+  grpc-server:
+    build: ./grpc-server
+    ports:
+      - "50051:50051"
+    depends_on:
+      - postgres
+
+  localstack:
+    image: localstack/localstack
+    environment:
+      - SERVICES=s3
+      - DEFAULT_REGION=us-east-1
+    ports:
+      - "4566:4566"
+      
+  main-app:
+    build: ./main-app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - grpc-server
+      - localstack
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DB: mydb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_PORT: 5432
+      AWS_ACCESS_KEY_ID: test
+      AWS_SECRET_ACCESS_KEY: test
+
+  tests:
+    build: ./tests
+    depends_on:
+      - main-app
+    environment:
+      - MAIN_APP_URL=http://main-app:8000
+    command: pytest --maxfail=1 --disable-warnings -q
