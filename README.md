@@ -100,6 +100,22 @@ exit $RESULT
 - Add a build step to execute `./run_tests.sh`.
 - The script will run the entire end-to-end test suite and return the appropriate exit code for your pipeline.
 
+## Devcontainer Configuration
+
+This project includes a `.devcontainer` directory with configurations for developing inside a Docker container using VS Code.
+
+### Using the Devcontainer
+
+1.  **Install the Remote - Containers extension:** In VS Code, install the "Remote - Containers" extension.
+2.  **Open the project in a container:** Open the project folder in VS Code. If you have the Remote - Containers extension installed, VS Code will detect the `.devcontainer` folder and prompt you to open the project in a container. Alternatively, you can use the "Remote-Containers: Reopen in Container" command from the VS Code command palette.
+
+The devcontainer includes two services defined in `docker-compose.yml`: `main-app` and `tests`.
+
+-   Use the `main-app` service when debugging the application's core functionality.
+-   Use the `tests` service when debugging the tests themselves.
+
+See the `.devcontainer/README.md` file for more details.
+
 ## Conclusion
 
 This minimal project setup serves as a template for building and testing multi-component applications locally. It leverages Docker Compose to provide an isolated environment where services interact as they would in production, enabling robust end-to-end testing. With the added `run_tests.sh` script, integration into Jenkins pipelines is straightforward, ensuring that your CI/CD process can reliably test your infrastructure. Feel free to extend this project to include additional services or more complex interactions as needed.
